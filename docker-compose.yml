@@ -1,0 +1,33 @@
+version: "3"
+
+services:
+  trello:
+    restart: always
+    build: .
+    command: bash -c "python3 manage.py migrate && python3 manage.py runserver 0.0.0.0:8000"
+    environment:
+      - DB_NAME=postgres
+      - DB_USER=postgres
+      - DB_PASSWORD=postgres
+      - DB_HOST=postgres
+      - DB_PORT=5432
+
+    volumes:
+      - .:/code
+    ports:
+      - "8000:8000"
+    links:
+      - postgres:postgres
+
+    depends_on:
+      - postgres
+
+  postgres:
+    restart: always
+    image: postgres:11.1-alpine
+    volumes:
+      - postgres_data:/var/lib/postgresql/data/
+
+volumes:
+  postgres_data:
+  static:
