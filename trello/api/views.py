@@ -19,6 +19,7 @@ class DeveloperTaskCreateAssignView(APIView):
             user = request.user
             task = serializer.save()
             task.assignees.add(user)
+            task.save()
             return Response(data=serializer.data, status=status.HTTP_201_CREATED)
         return Response(data=serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
@@ -51,17 +52,24 @@ class ProjectManagerCreateRetrieveProjectView(APIView):
 class ProjectManagerAssignProjectView(APIView):
     permission_classes = [IsProjectManager]
 
-    def post(self, request, project_id, user_id):
+    def post(self, request, project_id, developer_id):
         try:
             project = Project.objects.get(id=project_id)
-            user = User.objects.get(id=user_id)
-            project.developers.add(user)
-            project.save()
-            return Response(status=status.HTTP_200_OK)
         except Project.DoesNotExist:
-            return Response(data={"Database Error": "Project does not exist"}, status=status.HTTP_404_NOT_FOUND)
+            return Response(data={'Database Error': ['Project not found!']}, status=status.HTTP_404_NOT_FOUND)
+
+        try:
+            developer = User.objects.get(id=developer_id)
         except User.DoesNotExist:
-            return Response(data={"Database Error": "User does not exist"}, status=status.HTTP_404_NOT_FOUND)
+            return Response(data={'Database Error': ['Developer not found!']}, status=status.HTTP_404_NOT_FOUND)
+
+        if request.user not in project.managers.all():
+            return Response(status=status.HTTP_403_FORBIDDEN)
+
+        project.developers.add(developer)
+        project.save()
+        serializer = ProjectSerializer(project)
+        return Response(serializer.data, status=status.HTTP_201_CREATED)
 
 
 class ProjectManagerCreateRetrieveTaskProjectView(APIView):
@@ -123,16 +131,16 @@ class ProjectTasksListView(APIView):
         except Project.DoesNotExist:
             return Response(status=status.HTTP_404_NOT_FOUND)
 
-        tasks = project.tasks.all()
-        serializer = TaskSerializer(tasks)
-        return Response(data=serializer.data, status=status.HTTP_200_OK)
+        tasks = Task.objects.filter(project=project)
+        serializer = TaskSerializer(tasks, many=True)
+        return Response(data=serializer.data)
 
 
 class UsersTasksListView(APIView):
     permission_classes = [IsProjectManager]
 
-    def get(self, request, user_id, project_id):
-        user = get_object_or_404(User, id=user_id)
+    def get(self, request, developer_id, project_id):
+        user = get_object_or_404(User, id=developer_id)
         project = get_object_or_404(Project, id=project_id)
         tasks = Task.objects.filter(project=project, assignees=user)
         serializer = TaskSerializer(tasks, many=True)
@@ -156,4 +164,4 @@ class ProjectManagerAssignTaskView(APIView):
         task.assignees.add(assignee)
         task.save()
         serializer = TaskSerializer(task)
-        return Response(data=serializer.data, status=status.HTTP_200_OK)
+        return Response(data=serializer.data, status=status.HTTP_201_CREATED)
