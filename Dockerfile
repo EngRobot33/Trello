@@ -12,6 +12,8 @@ ENV PYTHONUNBUFFERED 1
 RUN apt update
 RUN apt install -y python3-pip
 
-ADD requirements.txt /trello
+COPY requirements.txt /trello
 RUN pip install -r requirements.txt
-ADD . /trello
+COPY . /trello
+
+CMD ["python3", "manage.py", "runserver", "0.0.0.0:8000"]
