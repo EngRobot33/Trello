@@ -16,6 +16,10 @@ Provided APIs:
 - List of user’s tasks in the project
 - Assigns task to a developers by project managers
 
+## Database Diagram
+
+![DBDiagram](https://github.com/EngRobot33/Trello/blob/master/database_diagram.png)
+
 ## Easy Setup by Docker
 
 ```
