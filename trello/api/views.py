@@ -109,10 +109,6 @@ class ProjectManagerCreateRetrieveTaskProjectView(APIView):
         if project is None:
             return Response(data={"Database Error": "Project not found."}, status=status.HTTP_404_NOT_FOUND)
 
-        if request.user != project.managers.first():
-            return Response(data={"Permission Error": "You do not have permission to add tasks to this project."},
-                            status=status.HTTP_403_FORBIDDEN)
-
         title = request.data.get("title")
         description = request.data.get("description")
 
