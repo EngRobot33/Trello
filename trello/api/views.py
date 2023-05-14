@@ -44,7 +44,9 @@ class ProjectManagerCreateRetrieveProjectView(APIView):
     def post(self, request):
         serializer = ProjectSerializer(data=request.data)
         if serializer.is_valid():
-            serializer.save(managers=request.user)
+            user = User.objects.get(id=request.user.id)
+            project = serializer.save()
+            project.managers.add(user)
             return Response(data=serializer.data, status=status.HTTP_201_CREATED)
         return Response(data=serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
