@@ -23,7 +23,7 @@ Provided APIs:
 ## Easy Setup by Docker
 
 ```
-docker-compose build
+docker-compose up
 ```
 
 ## Installation without Docker 🤷‍♂️
