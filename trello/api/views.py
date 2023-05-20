@@ -28,7 +28,7 @@ class DeveloperTaskProjectRetrieveView(APIView):
     permission_classes = [IsDeveloper]
 
     def get(self, request, project_id):
-        tasks = Task.objects.filter(project=project_id, assignees=request.user)
+        tasks = Task.objects.filter(project=project_id)
         serializer = TaskSerializer(tasks, many=True)
         return Response(data=serializer.data)
 
