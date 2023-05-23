@@ -65,9 +65,6 @@ class ProjectManagerAssignProjectView(APIView):
         except User.DoesNotExist:
             return Response(data={'Database Error': ['Developer not found!']}, status=status.HTTP_404_NOT_FOUND)
 
-        if request.user not in project.managers.all():
-            return Response(status=status.HTTP_403_FORBIDDEN)
-
         project.developers.add(developer)
         project.save()
         serializer = ProjectSerializer(project)
